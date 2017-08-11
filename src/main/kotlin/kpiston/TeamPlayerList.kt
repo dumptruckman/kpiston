@@ -9,7 +9,7 @@ import kpiston.metadata.PlayerKeys
 import org.bukkit.OfflinePlayer
 import org.bukkit.entity.Player
 
-internal class TeamPlayerList<G : Game<G>>(game: G, val team: GameTeam<G>) : PlayerList<G>(game) {
+internal class TeamPlayerList<G : Game<G>>(val team: GameTeam<G>) : PlayerList<G>(team.game) {
 
     override fun addPlayer(player: Player): JoinResult {
         val gamePlayer = player.metadata[PlayerKeys.GAME_PLAYER]
