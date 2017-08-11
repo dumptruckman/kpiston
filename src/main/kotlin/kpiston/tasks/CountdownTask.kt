@@ -14,7 +14,9 @@ import org.bukkit.scheduler.BukkitRunnable
  * @param notifySeconds A function to call when the number of seconds remaining changes.
  * @param notifyFinished A function to call when the countdown is complete.
  */
-class CountdownTask(length: Int, val notifySeconds: ((Int) -> Unit)? = null, val notifyFinished: (() -> Unit)? = null)
+class CountdownTask(length: Int,
+                    private val notifySeconds: ((Int) -> Unit)? = null,
+                    private val notifyFinished: (() -> Unit)? = null)
     : BukkitRunnable() {
 
     private var countdown: Long = length.toLong() * 1000
