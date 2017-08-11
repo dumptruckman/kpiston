@@ -1,13 +1,14 @@
 package kpiston.events
 
 import kpiston.Game
+import kpiston.GameTeam
 import kpiston.JoinResult
 import kpiston.extensions.isNotCancelled
 import org.bukkit.entity.Player
 import org.bukkit.event.Cancellable
 import org.bukkit.event.HandlerList
 
-class PlayerJoinGameEvent<G : Game<G>>(game: G, val player: Player)
+class PlayerJoinTeamEvent<G : Game<G>>(game: G, val player: Player, val team: GameTeam<*>)
     : GameEvent<G>(game), Cancellable by CancellableSupplier() {
 
     val result: JoinResult

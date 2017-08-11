@@ -13,7 +13,7 @@ import kotlin.reflect.KClass
 
 class StateStackTest {
 
-    class InitialState(game: Game<TestPlugin>) : MatchmakingState<TestPlugin>(game, 12) {
+    class InitialState(game: TestGame) : MatchmakingState<TestGame>(game, 12) {
         var eventCalled = false
 
         @EventHandler
@@ -21,7 +21,7 @@ class StateStackTest {
             eventCalled = true
         }
     }
-    class AnotherState(game: Game<TestPlugin>) : GameState<TestPlugin>(game) {
+    class AnotherState(game: TestGame) : GameState<TestGame>(game) {
         var eventCalled = false
 
         @EventHandler
@@ -29,25 +29,25 @@ class StateStackTest {
             eventCalled = true
         }
     }
-    class OtherGameState(game: Game<TestPlugin>) : GameState<TestPlugin>(game)
+    class OtherGameState(game: TestGame) : GameState<TestGame>(game)
 
-    class TestGame(plugin: TestPlugin) : Game<TestPlugin>(plugin) {
-        override val gameStateSuppliers: List<() -> GameState<TestPlugin>> = listOf(
+    class TestGame(manager: GamesManager<*>) : Game<TestGame>(manager) {
+        override val gameStateSuppliers: List<() -> GameState<TestGame>> = listOf(
                 { InitialState(this) },
                 { AnotherState(this) }
         )
-        override val initialState: KClass<out MatchmakingState<TestPlugin>> = InitialState::class
+        override val initialState: KClass<out MatchmakingState<TestGame>> = InitialState::class
         override val arena = ArenaWorld(this, "test1", "test")
     }
 
     object TestPlugin : com.dumptruckman.bukkit.utils.TestPlugin()
 
-    var game: TestGame = TestGame(TestPlugin)
+    var game: TestGame = TestGame(TestPlugin.gamesManager)
 
     @Before
     fun setUp() {
         Logging.init(TestPlugin)
-        game = TestGame(TestPlugin)
+        game = TestGame(TestPlugin.gamesManager)
     }
 
     @Test

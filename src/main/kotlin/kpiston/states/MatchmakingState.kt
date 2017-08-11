@@ -8,12 +8,11 @@ import kpiston.extensions.callEvent
 import org.bukkit.ChatColor.RED
 import org.bukkit.GameMode
 import org.bukkit.event.EventHandler
-import org.bukkit.plugin.Plugin
 
-abstract class MatchmakingState<T : Plugin>(game: Game<T>, val maxPlayers: Int) : GameState<T>(game) {
+abstract class MatchmakingState<G : Game<G>>(game: G, val maxPlayers: Int) : GameState<G>(game) {
 
     @EventHandler(ignoreCancelled = true)
-    fun playerJoin(event: PlayerJoinGameEvent) {
+    fun playerJoin(event: PlayerJoinGameEvent<G>) {
         if (game ignores event) return
 
         event.isHandled = true

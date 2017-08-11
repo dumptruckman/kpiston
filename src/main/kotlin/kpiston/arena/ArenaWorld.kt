@@ -8,9 +8,8 @@ import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.World
 import org.bukkit.WorldCreator
-import org.bukkit.plugin.Plugin
 
-class ArenaWorld<G : Game<out Plugin>>(game: G, name: CharSequence, private val templateName: CharSequence)
+class ArenaWorld<G : Game<G>>(game: G, name: CharSequence, private val templateName: CharSequence)
     : Arena<G>(game, name) {
 
     lateinit private var world: World

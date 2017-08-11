@@ -1,12 +1,12 @@
 package kpiston.events
 
 import kpiston.Game
-import kpiston.LeaveGameReason
+import kpiston.LeaveReason
 import org.bukkit.OfflinePlayer
 import org.bukkit.event.HandlerList
 
-class PlayerLeaveGameEvent(game: Game<*>, val player: OfflinePlayer, val reason: LeaveGameReason)
-    : GameEvent(game) {
+class PlayerLeaveGameEvent<G : Game<G>>(game: G, val player: OfflinePlayer, val reason: LeaveReason)
+    : GameEvent<G>(game) {
 
     override fun getHandlers() = Companion.handlers
 

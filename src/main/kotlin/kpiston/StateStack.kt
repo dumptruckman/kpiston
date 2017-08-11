@@ -1,15 +1,14 @@
 package kpiston
 
-import org.bukkit.plugin.Plugin
 import java.util.*
 import kotlin.reflect.KClass
 
-class StateStack<T : Plugin>(val game: Game<T>, private val gameStateSuppliers: List<() -> GameState<T>>) {
+class StateStack<G : Game<G>>(val game: G, private val gameStateSuppliers: List<() -> GameState<G>>) {
 
-    private val stateStack = ArrayDeque<GameState<T>>()
+    private val stateStack = ArrayDeque<GameState<G>>()
 
-    private val gameStates: Map<KClass<out GameState<T>>, GameState<T>> by lazy {
-        val result = mutableMapOf<KClass<out GameState<T>>, GameState<T>>()
+    private val gameStates: Map<KClass<out GameState<G>>, GameState<G>> by lazy {
+        val result = mutableMapOf<KClass<out GameState<G>>, GameState<G>>()
         gameStateSuppliers.forEach {
             val gameState = it.invoke()
             result[gameState::class] = gameState
@@ -20,7 +19,7 @@ class StateStack<T : Plugin>(val game: Game<T>, private val gameStateSuppliers: 
     /**
      * Retrieves this game's copy of the state object for the given [GameState] class.
      */
-    fun getState(stateType: KClass<out GameState<*>>): GameState<T> {
+    fun getState(stateType: KClass<out GameState<*>>): GameState<G> {
         return gameStates[stateType] ?: throw IllegalArgumentException("$stateType is not a valid state for this game")
     }
 
@@ -31,7 +30,7 @@ class StateStack<T : Plugin>(val game: Game<T>, private val gameStateSuppliers: 
      *
      * @param stateType This class is used as a key to retrieve the [GameState] instance this game uses.
      */
-    fun push(stateType: KClass<out GameState<T>>) {
+    fun push(stateType: KClass<out GameState<G>>) {
         val state = getState(stateType)
         state.resume()
         stateStack.push(state)
@@ -44,7 +43,7 @@ class StateStack<T : Plugin>(val game: Game<T>, private val gameStateSuppliers: 
      *
      * @throws NoSuchElementException if the game state stack is empty.
      */
-    fun pop(): GameState<T> {
+    fun pop(): GameState<G> {
         val state = stateStack.pop()
         state.pause()
         return state
@@ -57,7 +56,7 @@ class StateStack<T : Plugin>(val game: Game<T>, private val gameStateSuppliers: 
      *
      * @param stateType This class is used as a key to retrieve the [GameState] instance to push onto the stack.
      */
-    fun swap(stateType: KClass<out GameState<T>>) {
+    fun swap(stateType: KClass<out GameState<G>>) {
         pop()
         push(stateType)
     }
@@ -65,7 +64,7 @@ class StateStack<T : Plugin>(val game: Game<T>, private val gameStateSuppliers: 
     /**
      * Returns the active state at the top of the state stack.
      */
-    val top: GameState<T>?
+    val top: GameState<G>?
         get() = stateStack.peek()
 
     fun isNotEmpty() = stateStack.isNotEmpty()
@@ -73,9 +72,9 @@ class StateStack<T : Plugin>(val game: Game<T>, private val gameStateSuppliers: 
     val size: Int
         get() = stateStack.size
 
-    val activeStates: Array<GameState<T>>
+    val activeStates: Array<GameState<G>>
         get() = stateStack.toTypedArray()
 
-    val allStates: Iterator<GameState<T>>
+    val allStates: Iterator<GameState<G>>
         get() = gameStates.values.iterator()
 }

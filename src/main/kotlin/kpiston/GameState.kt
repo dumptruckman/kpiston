@@ -30,7 +30,7 @@ import org.bukkit.event.EventHandler
  * @constructor Creates a new instance of the GameState in a non-initialized and non-active state.
  * @param game The minigame that this GameState belongs to.
  */
-abstract class GameState<T : Plugin>(val game: Game<T>) : Listener, Plugin by game.plugin {
+abstract class GameState<G : Game<G>>(val game: G) : Listener, Plugin by game.plugin {
 
     private val configurator = ConfigSupplier("states/${this::class.java.simpleName}.yml", game.plugin)
 

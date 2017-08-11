@@ -2,9 +2,8 @@ package kpiston.states
 
 import kpiston.Game
 import kpiston.GameState
-import org.bukkit.plugin.Plugin
 
-abstract class StartCountdownState<T : Plugin>(game: Game<T>) : GameState<T>(game) {
+abstract class StartCountdownState<G : Game<G>>(game: G) : GameState<G>(game) {
 
     override fun onSetUp() {
 

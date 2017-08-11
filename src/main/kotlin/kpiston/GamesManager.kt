@@ -1,7 +1,6 @@
 package kpiston
 
 import kpiston.events.MatchmakingCompleteEvent
-import com.dumptruckman.endurance.EnduranceMiniGame
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -14,35 +13,37 @@ class GamesManager<P : Plugin>(val plugin: P) : Listener {
         plugin.server.pluginManager.registerEvents(this, plugin)
     }
 
-    private val inMatchmakingGames = mutableMapOf<KClass<out Game<*>>, GameQueue<P>>()
-    private val inProgressGames = mutableMapOf<KClass<out Game<*>>, GameQueue<P>>()
+    private val inMatchmakingGames = mutableMapOf<KClass<out Game<*>>, GameQueue<*>>()
+    private val inProgressGames = mutableMapOf<KClass<out Game<*>>, GameQueue<*>>()
 
-    fun getMatchmakingQueue(type: KClass<out Game<P>>) = inMatchmakingGames.getOrPut(type, { GameQueue(plugin) })
-    fun getInProgressQueue(type: KClass<out Game<P>>) = inProgressGames.getOrPut(type, { GameQueue(plugin) })
+    @Suppress("UNCHECKED_CAST")
+    fun <G : Game<G>> getMatchmakingQueue(type: KClass<out G>): GameQueue<G> = inMatchmakingGames.getOrPut(type, { GameQueue<G>() }) as GameQueue<G>
+    @Suppress("UNCHECKED_CAST")
+    fun <G : Game<G>> getInProgressQueue(type: KClass<out G>): GameQueue<G> = inProgressGames.getOrPut(type, { GameQueue<G>() }) as GameQueue<G>
 
-    fun <G : Game<P>> createNewGame(gameSupplier: (P) -> G): G {
-        val game = gameSupplier(plugin)
-        getMatchmakingQueue(game::class).add(game)
+    inline fun <reified G : Game<G>> createNewGame(gameSupplier: (GamesManager<P>) -> G): G {
+        val game = gameSupplier(this)
+        getMatchmakingQueue(G::class).add(game)
         game.startGame()
         return game
     }
 
-    private fun moveToInProgress(game: Game<P>) {
+    private fun <G : Game<G>> moveToInProgress(game: G) {
         val queue = getMatchmakingQueue(game::class)
         if (queue.removeIf({ g -> g === game })) {
             getInProgressQueue(game::class).add(game)
         }
     }
 
-    fun requestJoin(player: Player, type: KClass<out Game<P>>): JoinGameResult {
+    fun <G : Game<G>> requestJoin(player: Player, type: KClass<G>): JoinResult {
         val queue = getMatchmakingQueue(type)
-        if (queue.isEmpty()) return JoinGameResult.NO_GAME
+        if (queue.isEmpty()) return JoinResult.NO_GAME
         val game = queue.first
 
         return requestJoin(player, game)
     }
 
-    fun requestJoin(player: Player, game: Game<P>): JoinGameResult {
+    fun <G : Game<G>> requestJoin(player: Player, game: G): JoinResult {
         if (player in game.players) {
             throw IllegalArgumentException("${player.name} is already in this game.")
         }
@@ -50,11 +51,9 @@ class GamesManager<P : Plugin>(val plugin: P) : Listener {
     }
 
     @EventHandler
-    private fun matchmakingComplete(event: MatchmakingCompleteEvent) {
+    private fun <G : Game<G>> matchmakingComplete(event: MatchmakingCompleteEvent<G>) {
         if (event.game.plugin == plugin) {
-            @Suppress("UNCHECKED_CAST")
-            val game = event.game as Game<P>
-            if (game in getMatchmakingQueue(game::class)) {
+            if (event.game in getMatchmakingQueue(event.game::class)) {
                 moveToInProgress(event.game)
             }
         }

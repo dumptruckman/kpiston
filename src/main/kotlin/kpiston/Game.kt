@@ -10,7 +10,7 @@ import org.bukkit.plugin.Plugin
 import kotlin.reflect.KClass
 
 /**
- * A Minecraft Minigame.
+ * A Minecraft minigame.
  *
  * This class primarily manages the game states of the minigame. It provides a game state stack which can be pushed
  * to and popped from. General control of game states is done using the [KClass] objects of each [GameState]
@@ -22,13 +22,15 @@ import kotlin.reflect.KClass
  *
  * @param plugin The plugin that provides this minigame.
  */
-abstract class Game<T : Plugin>(
+abstract class Game<SELF : Game<SELF>>(
         /**
          * The plugin that provides this minigame.
          */
-        val plugin: T) : Listener, Plugin by plugin {
+        val manager: GamesManager<*>) : Listener, Plugin by manager.plugin {
 
-    private val configurator = ConfigSupplier("games/${this::class.java.simpleName}.yml", plugin)
+    val plugin = manager.plugin
+
+    private val configurator = ConfigSupplier("games/${this::class.java.simpleName}.yml", manager.plugin)
 
     private var setup: Boolean = false
     private var tornDown: Boolean = false
@@ -36,32 +38,35 @@ abstract class Game<T : Plugin>(
     /**
      * A list of the suppliers that will provide instances of each [GameState] for this game.
      */
-    protected abstract val gameStateSuppliers: List<() -> GameState<T>>
+    protected abstract val gameStateSuppliers: List<() -> GameState<SELF>>
     /**
      * The initial game state that the game will push to the game state stack when the game is started.
      *
      * The initial state should be an implementation of [MatchmakingState].
      */
-    protected abstract val initialState: KClass<out MatchmakingState<T>>
+    protected abstract val initialState: KClass<out MatchmakingState<SELF>>
     /**
-     * The arena this minigame takes place in.
+     * The arena the minigame takes place in.
      */
     abstract val arena: Arena<*>
+
     /**
      * The list of players that have joined this game.
      */
-    val players = PlayerList(this)
+    @Suppress("UNCHECKED_CAST")
+    val players: PlayerList<SELF> = GamePlayerList(this as SELF)
     /**
      * The stack of game states for this game.
      */
     val stateStack by lazy {
-        StateStack(this, gameStateSuppliers)
+        @Suppress("UNCHECKED_CAST")
+        StateStack<SELF>(this as SELF, gameStateSuppliers)
     }
 
     private fun setUp() {
         if (!setup) {
             setup = true
-            plugin.server.pluginManager.registerEvents(this, this)
+            manager.plugin.server.pluginManager.registerEvents(this, this)
             arena.setUp()
             stateStack.allStates.forEach { it.setUp() }
         }
@@ -136,11 +141,11 @@ abstract class Game<T : Plugin>(
      *
      * See [Game.ignores].
      */
-    infix fun owns(event: GameEvent) = event.isOwnedBy(this)
+    infix fun owns(event: GameEvent<*>) = event.isOwnedBy(this)
     /**
      * Indicates whether this game should ignore the given event.
      *
      * A game and its states should only care about events it (or its states) initiated.
      */
-    infix fun ignores(event: GameEvent) = event.isNotOwnedBy(this)
+    infix fun ignores(event: GameEvent<*>) = event.isNotOwnedBy(this)
 }

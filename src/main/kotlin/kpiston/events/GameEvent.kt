@@ -3,7 +3,7 @@ package kpiston.events
 import kpiston.Game
 import org.bukkit.event.Event
 
-abstract class GameEvent(val game: Game<*>) : Event() {
+abstract class GameEvent<G : Game<G>>(val game: G) : Event() {
 
     /**
      * Indicates whether the given game owns (initiated) this event.

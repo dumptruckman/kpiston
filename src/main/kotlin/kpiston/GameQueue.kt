@@ -1,20 +1,19 @@
 package kpiston
 
-import org.bukkit.plugin.Plugin
 import java.util.ArrayDeque
 
-class GameQueue<P : Plugin>(val plugin: P) {
+class GameQueue<G : Game<G>> {
 
-    private val queue = ArrayDeque<Game<P>>()
+    private val queue = ArrayDeque<G>()
 
     val size
         get() = queue.size
-    val first
-        get() = queue.first
+    val first: G
+        get() = queue.first as G
 
-    fun <G : Game<P>> add(game: G) = queue.add(game)
+    fun add(game: G) = queue.add(game)
     fun isEmpty() = queue.isEmpty()
-    fun removeIf(filter: (t: Game<P>) -> Boolean) = queue.removeIf(filter)
+    fun removeIf(filter: (t: Game<*>) -> Boolean) = queue.removeIf(filter)
 
-    operator fun <G : Game<P>> contains(game: G) = queue.contains(game)
+    operator fun contains(game: Game<*>) = queue.contains(game)
 }

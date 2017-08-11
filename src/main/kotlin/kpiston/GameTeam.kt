@@ -1,8 +1,6 @@
 package kpiston
 
-import org.bukkit.plugin.Plugin
+class GameTeam<G : Game<G>>(val game: G, val id: Any, val name: CharSequence? = null) {
 
-class GameTeam<G : Game<out Plugin>>(val game: G, val name: CharSequence) {
-
-    
+    val players: PlayerList<G> = TeamPlayerList(game, this)
 }

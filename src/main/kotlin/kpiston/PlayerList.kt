@@ -1,50 +1,25 @@
 package kpiston
 
-import com.dumptruckman.bukkit.metadata.BukkitMetadata
-import kpiston.events.PlayerJoinGameEvent
-import kpiston.events.PlayerLeaveGameEvent
-import kpiston.extensions.callEvent
-import kpiston.extensions.metadata
-import kpiston.metadata.PlayerKeys
 import org.bukkit.Bukkit
 import org.bukkit.OfflinePlayer
 import org.bukkit.entity.Player
-import org.bukkit.plugin.Plugin
 import java.util.UUID
 
 // TODO Make this work for teams and games.
-class PlayerList<G : Game<out Plugin>>(val game: G) : Iterable<GamePlayer<out G>> {
+abstract class PlayerList<G : Game<G>> protected constructor (val game: G) : Iterable<GamePlayer<out G>> {
 
-    private val players = mutableMapOf<UUID, GamePlayer<out G>>()
+    protected val players = mutableMapOf<UUID, GamePlayer<out G>>()
 
     val count: Int
         get() = players.size
 
-    fun addPlayer(player: Player): JoinGameResult {
-        if (players.containsKey(player.uniqueId)) {
-            throw IllegalArgumentException("${player.name} is already in this game.")
-        }
-        if (player.metadata[PlayerKeys.GAME_PLAYER] != null) {
-            throw IllegalArgumentException("${player.name} is already in a game.")
-        }
+    abstract fun addPlayer(player: Player): JoinResult
 
-        val joinEvent = PlayerJoinGameEvent(game, player).callEvent()
-        if (joinEvent.result == JoinGameResult.SUCCESS) {
-            val gPlayer = GamePlayer<G>(game, player)
-            player.metadata[PlayerKeys.GAME_PLAYER] = gPlayer
-            players[player.uniqueId] = gPlayer
-        }
-        return joinEvent.result
-    }
+    protected abstract fun onRemove(player: OfflinePlayer, reason: LeaveReason)
 
-    private fun remove(player: OfflinePlayer, reason: LeaveGameReason) {
-        PlayerLeaveGameEvent(game, player, reason).callEvent()
-        BukkitMetadata.strongMetadataStore.getMetadata(player.uniqueId).remove(PlayerKeys.GAME_PLAYER)
-    }
-
-    fun removePlayer(player: OfflinePlayer, reason: LeaveGameReason = LeaveGameReason.UNKNOWN) {
+    fun removePlayer(player: OfflinePlayer, reason: LeaveReason = LeaveReason.UNKNOWN) {
         if (players.remove(player.uniqueId) != null) {
-            remove(player, reason)
+            onRemove(player, reason)
         }
     }
 
@@ -56,9 +31,9 @@ class PlayerList<G : Game<out Plugin>>(val game: G) : Iterable<GamePlayer<out G>
 
     override fun iterator(): Iterator<GamePlayer<out G>> = players.values.iterator()
 
-    fun removeAllPlayers(reason: LeaveGameReason = LeaveGameReason.UNKNOWN) {
+    fun removeAllPlayers(reason: LeaveReason = LeaveReason.UNKNOWN) {
         for (player in players) {
-            remove(Bukkit.getOfflinePlayer(player.key), reason)
+            onRemove(Bukkit.getOfflinePlayer(player.key), reason)
         }
         players.clear()
     }
