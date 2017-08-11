@@ -1,0 +1,23 @@
+name: KPiston
+main: kpiston.plugin.KPistonPlugin
+author: dumptruckman
+version: @plugin_version@
+depend: [MGKLibs]
+
+permissions:
+  endurance.*:
+    children:
+      endurance.game.*: true
+  endurance.game.*:
+    children:
+      endurance.game.create: true
+  endurance.game.create:
+    default: op
+  endurance.game.join:
+    default: op
+
+commands:
+  creategame:
+    permission: endurance.game.create
+  joingame:
+    permission: endurance.game.join
