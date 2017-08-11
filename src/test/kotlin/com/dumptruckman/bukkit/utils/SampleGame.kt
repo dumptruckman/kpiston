@@ -21,7 +21,7 @@ class SampleGame(manager: GamesManager<*>) : Game<SampleGame>(manager) {
     override val arena = ArenaWorld(this, "test1", "test")
 
     class Matchmaking(game: SampleGame) : MatchmakingState<SampleGame>(game, 4)
-    class Countdown(game: SampleGame) : StartCountdownState<SampleGame>(game)
+    class Countdown(game: SampleGame) : StartCountdownState<SampleGame>(game, 10)
 
     @EventHandler
     fun matchmakingComplete(event: MatchmakingCompleteEvent<SampleGame>) {
