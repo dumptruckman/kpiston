@@ -12,15 +12,20 @@ buildscript {
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "org.jetbrains.dokka:dokka-gradle-plugin:0.9.15"
     }
 }
 
 plugins {
     id "com.github.johnrengelman.shadow" version "2.0.1"
+    id 'net.minecrell.licenser' version '0.3'
 }
 
 apply plugin: 'kotlin'
+apply plugin: 'net.minecrell.licenser'
 apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'org.jetbrains.dokka'
+apply plugin: 'maven'
 
 group 'com.dumptruckman.bukkit'
 version "$plugin_version"
@@ -59,10 +64,14 @@ dependencies {
     }
 }
 
-jar.finalizedBy shadowJar
-
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
+
+license {
+    header project.file('HEADER.txt')
+    include '**/*.kt'
+    newLine false
+}
 
 compileKotlin {
     kotlinOptions.jvmTarget = "1.8"
@@ -71,13 +80,64 @@ compileTestKotlin {
     kotlinOptions.jvmTarget = "1.8"
 }
 
-shadowJar {
-    baseName = project.name
-    classifier = null
-}
-
 processResources {
     filter ReplaceTokens, tokens: [
             "plugin_version": project.property("plugin_version").toString()
     ]
+}
+
+jar.finalizedBy shadowJar
+
+shadowJar {
+    baseName = project.name
+    classifier = null
+    relocate 'org.bstats', 'bstats.kpiston'
+    relocate 'com.okkero.skedule', 'skedule.kpiston'
+}
+
+dokka {
+    outputFormat = 'javadoc'
+    outputDirectory = "$buildDir/javadoc"
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier 'sources'
+    from sourceSets.main.allSource
+    from "${projectDir}/LICENSE.txt"
+}
+
+task javadocJar(type: Jar) {
+    classifier 'javadoc'
+    from dokka
+}
+
+artifacts {
+    archives sourcesJar
+    archives javadocJar
+}
+
+def installer = install.repositories.mavenInstaller
+if (project.hasProperty('mavenUser') && project.hasProperty('mavenPassword')) {
+    shadowJar.dependsOn checkLicenses
+    uploadArchives {
+        repositories {
+            mavenDeployer {
+                repository(url: "http://repo.onarandombox.com/content/repositories/thirdparty/") {
+                    authentication(userName: mavenUser, password: mavenPassword)
+                }
+                snapshotRepository(url: "http://repo.onarandombox.com/content/repositories/thirdparty-dev/") {
+                    authentication(userName: mavenUser, password: mavenPassword)
+                }
+            }
+        }
+    }
+
+    def deployer = uploadArchives.repositories.mavenDeployer
+    [installer, deployer]*.pom*.whenConfigured {pom ->
+        pom.dependencies.removeAll { it.groupId == 'org.bstats' }
+    }
+} else {
+    [installer]*.pom*.whenConfigured {pom ->
+        pom.dependencies.removeAll { it.groupId == 'org.bstats' }
+    }
 }
