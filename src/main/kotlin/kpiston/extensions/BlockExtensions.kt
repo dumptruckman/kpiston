@@ -1,7 +1,7 @@
 package kpiston.extensions
 
-import com.dumptruckman.bukkit.metadata.BukkitMetadata
-import com.dumptruckman.bukkit.metadata.Metadata
+import kpiston.metadata.BukkitMetadata
+import kpiston.metadata.Metadata
 import kpiston.util.ImmutableStableLocation
 import kpiston.util.StableLocation
 import org.bukkit.block.Block

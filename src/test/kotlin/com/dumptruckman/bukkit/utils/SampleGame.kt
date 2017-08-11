@@ -1,12 +1,12 @@
 package com.dumptruckman.bukkit.utils
 
 import kpiston.Game
-import kpiston.GameState
+import kpiston.state.GameState
 import kpiston.GamesManager
 import kpiston.arena.ArenaWorld
-import kpiston.events.MatchmakingCompleteEvent
-import kpiston.states.MatchmakingState
-import kpiston.states.StartCountdownState
+import kpiston.event.MatchmakingCompleteEvent
+import kpiston.state.MatchmakingState
+import kpiston.state.StartCountdownState
 import org.bukkit.event.EventHandler
 import kotlin.reflect.KClass
 

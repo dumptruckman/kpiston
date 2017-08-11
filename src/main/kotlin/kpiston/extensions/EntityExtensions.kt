@@ -1,7 +1,7 @@
 package kpiston.extensions
 
-import com.dumptruckman.bukkit.metadata.BukkitMetadata
-import com.dumptruckman.bukkit.metadata.Metadata
+import kpiston.metadata.BukkitMetadata
+import kpiston.metadata.Metadata
 import org.bukkit.entity.Entity
 
 val Entity.metadata: Metadata

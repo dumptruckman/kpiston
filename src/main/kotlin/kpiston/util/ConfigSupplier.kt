@@ -1,6 +1,6 @@
 package kpiston.util
 
-import kpiston.GameState
+import kpiston.state.GameState
 import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.configuration.file.UnsaveableYamlConfiguration
 import org.bukkit.configuration.file.YamlConfiguration

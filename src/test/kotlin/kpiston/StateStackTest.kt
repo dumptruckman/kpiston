@@ -1,9 +1,10 @@
 package kpiston
 
 import kpiston.arena.ArenaWorld
-import kpiston.states.MatchmakingState
+import kpiston.state.MatchmakingState
 import kpiston.util.Logging
 import com.dumptruckman.bukkit.utils.TestEvent
+import kpiston.state.GameState
 import org.bukkit.event.EventHandler
 import org.junit.Before
 

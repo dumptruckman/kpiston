@@ -1,8 +1,11 @@
 package kpiston
 
 import kpiston.arena.Arena
-import kpiston.events.GameEvent
-import kpiston.states.MatchmakingState
+import kpiston.event.GameEvent
+import kpiston.player.GamePlayerList
+import kpiston.player.PlayerList
+import kpiston.state.GameState
+import kpiston.state.MatchmakingState
 import kpiston.util.ConfigSupplier
 import org.bukkit.event.HandlerList
 import org.bukkit.event.Listener
@@ -60,7 +63,7 @@ abstract class Game<SELF : Game<SELF>>(
      */
     val stateStack by lazy {
         @Suppress("UNCHECKED_CAST")
-        StateStack<SELF>(this as SELF, gameStateSuppliers)
+        (kpiston.state.StateStack<SELF>(this as SELF, gameStateSuppliers))
     }
 
     private fun setUp() {

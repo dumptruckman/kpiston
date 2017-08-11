@@ -1,6 +1,6 @@
 package kpiston
 
-import kpiston.events.MatchmakingCompleteEvent
+import kpiston.event.MatchmakingCompleteEvent
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener

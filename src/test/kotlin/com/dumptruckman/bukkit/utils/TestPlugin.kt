@@ -1,7 +1,7 @@
 package com.dumptruckman.bukkit.utils
 
 import kpiston.GamesManager
-import com.dumptruckman.bukkit.metadata.BukkitMetadata
+import kpiston.metadata.BukkitMetadata
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.configuration.file.FileConfiguration

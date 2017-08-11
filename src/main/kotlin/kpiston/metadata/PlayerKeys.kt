@@ -1,8 +1,7 @@
 package kpiston.metadata
 
-import com.dumptruckman.bukkit.metadata.MetadataKey
-import kpiston.GamePlayer
-import kpiston.GameTeam
+import kpiston.player.GamePlayer
+import kpiston.team.GameTeam
 
 object PlayerKeys {
 
