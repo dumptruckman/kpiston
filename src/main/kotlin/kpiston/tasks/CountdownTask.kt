@@ -11,11 +11,15 @@ import org.bukkit.scheduler.BukkitRunnable
  * Creates a countdown task for the given number of seconds.
  *
  * @param length The length of the countdown in seconds.
+ * @param notifySeconds A function to call when the number of seconds remaining changes.
+ * @param notifyFinished A function to call when the countdown is complete.
  */
-class CountdownTask(length: Int) : BukkitRunnable() {
+class CountdownTask(length: Int, val notifySeconds: ((Int) -> Unit)? = null, val notifyFinished: (() -> Unit)? = null)
+    : BukkitRunnable() {
 
     private var countdown: Long = length.toLong() * 1000
     private var lastTime: Long = -1
+    private var lastSeconds: Int = length
 
     override fun run() {
         if (lastTime < 0) {
@@ -25,6 +29,16 @@ class CountdownTask(length: Int) : BukkitRunnable() {
             val delta = currentTime - lastTime
             lastTime = currentTime
             countdown -= delta
+
+            if (notifyFinished != null && countdown <= 0) {
+                notifyFinished.invoke()
+            } else if (notifySeconds != null) {
+                val remaining = remainingSeconds
+                if (remaining < lastSeconds) {
+                    notifySeconds.invoke(remaining)
+                    lastSeconds = remaining
+                }
+            }
         }
     }
 
