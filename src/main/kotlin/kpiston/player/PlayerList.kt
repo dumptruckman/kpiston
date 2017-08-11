@@ -8,7 +8,6 @@ import org.bukkit.OfflinePlayer
 import org.bukkit.entity.Player
 import java.util.UUID
 
-// TODO Make this work for teams and games.
 abstract class PlayerList<G : Game<G>> protected constructor (val game: G) : Iterable<GamePlayer<out G>> {
 
     protected val players = mutableMapOf<UUID, GamePlayer<out G>>()
